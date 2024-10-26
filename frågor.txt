@@ -1,0 +1,40 @@
+Här jobbar vi för VG!
+
+1. Pull vs Push
+    Pull - Dra ner filer från remote repo och merga med dina egna.
+    Push - Tryck upp filer från ditt repo till remote repo.
+
+2. Log vs Status
+    Log - Visar vår commit-historik.
+    Status - Visar status i vår staging area, ändringar i filer
+    etc som görs redo för commit.
+
+3. Vad är git branch
+    Branches låter oss arbeta separat från Main builden, de ger oss
+    möjlighet att jobba med ändringar utan att störa andras arbete,
+    när vi är klara med vår ändring kan vi slå ihop vår branch med
+    Main och på så sätt successivt bygga ihop kompletta program.
+
+4. Rulla tillbaka ändringar
+    Det finns flera bra sätt som har lite olika användningssyfte.
+    
+    Restore - I sin grund handlar restore om att återställa filer.
+            Kan också användas för att flytta HEAD till en tidigare
+            commit, och återställa filerna från dem.
+
+    Revert - Låter oss ångra en ändring genom att skapa en ny commit.
+            Tillåter säkrare ändring av historiken och alla reverts
+            kommer med i vår git log, eftersom de skapar en ny commit.
+
+    Reset - Reset flyttar HEAD (på alla nivåer!) och kan ändra historiken,
+            beror lite på flagga, kan vara bra för att helt återställa ändringar.
+            
+            --soft - Bevarar staging area & working directory, om vi t.ex råkat
+                    comitta för tidigt.
+        
+            --mixed (standard) - Återställer vår staging area men låter bli working
+                    directory. Bra att ha om vi lagt till fel saker i staging area.
+
+            --hard - Blåser alla 3 träd (staging area, working directory & commit).
+                    Används när man gjort helt fel och behöver återställa alla 3 träd,
+                    ska användas med försiktigthet.
