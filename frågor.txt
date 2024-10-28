@@ -189,3 +189,127 @@ Här jobbar vi för VG!
 
                 Kommandohistorik:
                 ---------------------------------
+
+    Rebase vs Merge
+        En git rebase(ombasera) till main i github, tar en branch och dess commits och slänger ovanpå
+        commithistoriken i main, den fortsätter en lång linjär sekvens av utveklingshistorik.
+        Oavsett om ensförsta commit kanske är obsolet jämfört med nuvarande version i main, så lägger
+        git rebase våra uppdaterijngar längst fram.
+        
+        Fördel rebase: Tydlig och linjär utvecklingshistorik som är mer läsbar.
+
+        En git merge är gör istället att en ny commit skapas, man kan säga att
+        det är en commit som har två föräldrar (de två brancher som mergades). Merge commiten pekar
+        på sina föräldrar för att berätta om hur den blev till, istället för en linjär historik
+        blir historiken förgrenad som ett stort släktträd.
+        
+        Fördel merge: Låter oss se hela historiken i en logisk sekvens som visar när
+        funktioner implementerats och från var de kom.
+        
+        Uppgift: Skapa ett repo med två eller fler feature branches som utvecklare arbetar på.
+        Beskriv hur du löser konflikter som uppstår under rebase och merge och visa slutresultatet i historiken.
+        
+        Steg 1: Skapa branch och sedan en fil i main
+        ---------------------
+        git init
+        git switch -c dev-1
+        git switch main
+        cat > text.txt
+            hejsan på dejsan
+            vi har det bra
+        ---------------------
+
+        Steg 2: Nu har vi två brancher, vi byter tillbaka till main och gör en add & commit.
+        Det gör att våra två brancher är olika, nu vill vi uppdatera "dev-1" så den matchar main.
+        ---------------------
+        git switch dev-1
+        git merge main        
+        ---------------------
+
+        3. Detta gick ju bra, ingen konflikt! Men det ska vi åstadkomma nu. Vi skapar en till branch
+        baserat på dev-1 och ser till att den är väldigt olik, sedan försöker vi merga till main
+        ---------------------
+        git switch dev-1
+        git switch -c dev-2
+        cat > text.txt
+            Detta get konflikt
+            Massa massa konflikt
+            Banankaka!
+        git switch main
+        git merge dev-2
+
+        Auto-merging text.txt
+        CONFLICT (content): Merge conflict in text.txt
+        Automatic merge failed; fix conflicts and then commit the result.
+        ---------------------
+
+        4. Där kom det, vi måste själva undersöka felet. det kan vi göra med
+        kommandot cat, nu kommer vi se <<<, ===, >>> i texfilen. inte så fint!
+        Detta är skiljemärken på var konflikten börjar och slutar, vi får själva
+        hantera det. sedan kollar vi vår log, längst upp har vi en ny commit, ärvd
+        från dev-2.
+        ---------------------
+        matdac0521@Jarvis:~/undo-examples$ git log // vi kollar log
+
+        commit 5089614e17106da1010abe5d7b4cb313557c9e91 (HEAD -> master)
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 13:46:38 2024 +0100
+
+            Added stuff to dev-3 for conflict
+        ---------------------
+
+        5. Vi tar bort våra branches och skapar en ny, i den nya branchen gör vi
+        några små ändringar i textfilen & commitar ett par gånger, till slut gör
+        vi rebase till main.
+        ---------------------
+        git branch -D dev-1
+        git branch -D dev-2
+        git switch -c rebase-example
+        
+        cat > file.txt
+            hejsan
+        git add .
+        git commit -m "change 1"
+
+        //vi lägger till 2 rader till, add och commit efter varje!
+        //tillslut ser file.txt ut såhär:
+            hejsan
+            lejsan
+            svenjsan
+
+        git switch main
+
+        git rebase rebase-example // här sker själva rebasen.
+        ---------------------
+
+        6. Nu har vi lyckats göra en rebase! vi kollar vår historik.
+        Vi ser att alla 3 kommits som vi rebase-ade från vår branch lades uppepå
+        historiken, istället för att skapa en enda merge commit, så ser vi nu i
+        detalj vilka ändringar som gjorts i varje branch.
+        ---------------------
+        matdac0521@Jarvis:~/undo-examples$ git log
+        
+        commit 6e0ffa7aadf08e989040f63f32c446aebeb5022d (HEAD -> master, rebase-example)
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 14:11:46 2024 +0100
+
+            changes 2
+
+        commit 49cfc17ac779a70b1fc5b7a9b96de25ccd3119de
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 14:11:33 2024 +0100
+
+            changes 2
+
+        commit afa14f65cb8dd9d180b76d1514ccec10eb8ddf6d
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 14:11:01 2024 +0100
+
+            changes 1
+
+        commit 5089614e17106da1010abe5d7b4cb313557c9e91
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 13:46:38 2024 +0100
+
+            Added stuff to dev-3 for conflict // titta! Här är vår gamla commit
+        ---------------------
