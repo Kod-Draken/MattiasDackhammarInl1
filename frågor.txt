@@ -19,22 +19,173 @@ Här jobbar vi för VG!
     Det finns flera bra sätt som har lite olika användningssyfte.
     
     Restore - I sin grund handlar restore om att återställa filer.
-            Kan också användas för att flytta HEAD till en tidigare
-            commit, och återställa filerna från dem.
+            Kan också flytta HEAD till en tidigare commit, och
+            återställa därifrån.
+            
+        Exempel:
+        Vi har 3 filer "A.txt, B.txt, C.txt" och modifierar
+        deras innehåll, innan du commitar inser sedan att filen
+        "B.txt" inte skulle ändras. Då kan vi snabbt återställa
+        till HEAD med ---> git restore B.txt
+
+        Kommandohistorik: 
+        ---------------------------------
+        matdac0521@Jarvis:~/undo-examples$ git commit -m "added 3 files with quotes"
+        [master (root-commit) a3210c6] added 3 files with quotes
+        3 files changed, 3 insertions(+)
+        create mode 100644 A.txt
+        create mode 100644 B.txt
+        create mode 100644 C.txt
+        matdac0521@Jarvis:~/undo-examples$ cat > C.txt 
+        Hes not here anymore I made changes
+        ^C
+        matdac0521@Jarvis:~/undo-examples$ cat > B.txt // B is overwritten
+        This will be removed once i restore things
+        ^C
+        matdac0521@Jarvis:~/undo-examples$ cat > A.txt
+        Oh yeah coolaid!
+        ^C
+        matdac0521@Jarvis:~/undo-examples$ git restore B.txt // B is restored from prevous commit(standard)
+        matdac0521@Jarvis:~/undo-examples$ cat B.txt
+        Somewhere over the rainbow
+        matdac0521@Jarvis:~/undo-examples$
+        ---------------------------------
 
     Revert - Låter oss ångra en ändring genom att skapa en ny commit.
             Tillåter säkrare ändring av historiken och alla reverts
             kommer med i vår git log, eftersom de skapar en ny commit.
+                
+        Exempel:
+        Vi skapar utöver följande 3 filer, också fil D.txt som
+        commitas, och sedan fil E.txt som commitas, vi kommer på att vi
+        inte ska ha fil D. ---> git revert <hash-till-comitten-med-D.txt>
+
+        Kommandohistorik:
+        ---------------------------------
+        matdac0521@Jarvis:~/undo-examples$ git log
+        commit 99234dd8e1a62193b6e2a58832196222a99c4e9b (HEAD -> master)
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 09:58:26 2024 +0100
+
+        added E.txt
+
+        commit ffc827d078a7e9b7d783d594c7b8e3a5816c9b2d
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 09:56:04 2024 +0100
+
+        added D.txt
+
+        commit a3210c605b4f7ec2e1f707f66dcfa3aec7ca2bf5
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 09:47:26 2024 +0100
+
+        added 3 files with quotes
+        matdac0521@Jarvis:~/undo-examples$ git revert ffc827d
+        [master 52b1879] Revert "added D.txt"
+        1 file changed, 1 deletion(-)
+        delete mode 100644 D.txt
+        matdac0521@Jarvis:~/undo-examples$ ls
+        A.txt  B.txt  C.txt  E.txt
+        matdac0521@Jarvis:~/undo-examples$ git log
+        commit 52b187997858ba3a2794b6728bc98a988ab18df8 (HEAD -> master)
+        Author: MrGazelle <m.dackhammar@gmail.com>
+        Date:   Mon Oct 28 09:59:04 2024 +0100
+
+                Revert "added D.txt"
+
+                This reverts commit ffc827d078a7e9b7d783d594c7b8e3a5816c9b2d.
+
+                We realised we didnt need D.txt but we needed E.txt
+        ---------------------------------
 
     Reset - Reset flyttar HEAD (på alla nivåer!) och kan ändra historiken,
             beror lite på flagga, kan vara bra för att helt återställa ändringar.
             
             --soft - Bevarar staging area & working directory, om vi t.ex råkat
                     comitta för tidigt.
+                        
+                Exempel: Vi har av misstag commitat en java-fil med massa
+                buggig kod, vi vill återkalla den men kunna smidigt ändra
+                några få saker innan vi skickar iväg den igen.
+                Med --soft kommer vi behålla alla ändringar i WD och SA.
+
+                Kommandohistorik:
+                ---------------------------------
+                matdac0521@Jarvis:~/undo-examples$ git log
+                commit 274774b28693a74f44a8aa42112aaea93ef33e91 (HEAD -> master)
+                Author: MrGazelle <m.dackhammar@gmail.com>
+                Date:   Mon Oct 28 10:11:27 2024 +0100
+
+                added buggy code
+
+                commit 52b187997858ba3a2794b6728bc98a988ab18df8
+                Author: MrGazelle <m.dackhammar@gmail.com>
+                Date:   Mon Oct 28 09:59:04 2024 +0100
+
+                Revert "added D.txt"
+
+                This reverts commit ffc827d078a7e9b7d783d594c7b8e3a5816c9b2d.
+
+                We realised we didnt need D.txt but we needed E.txt
+
+                commit 99234dd8e1a62193b6e2a58832196222a99c4e9b
+                Author: MrGazelle <m.dackhammar@gmail.com>
+                Date:   Mon Oct 28 09:58:26 2024 +0100
+
+                added E.txt
+
+                // more commits...
+                
+                matdac0521@Jarvis:~/undo-examples$ git reset --soft // here we move back 1 step in commit history, but keep changes in WD and Staging area
+                matdac0521@Jarvis:~/undo-examples$ git log
+                
+                commit 274774b28693a74f44a8aa42112aaea93ef33e91 (HEAD -> master)
+                Author: MrGazelle <m.dackhammar@gmail.com>
+                Date:   Mon Oct 28 10:11:27 2024 +0100
+
+                added buggy code
+
+                commit 52b187997858ba3a2794b6728bc98a988ab18df8
+                Author: MrGazelle <m.dackhammar@gmail.com>
+                Date:   Mon Oct 28 09:59:04 2024 +0100
+
+                Revert "added D.txt"
+
+                This reverts commit ffc827d078a7e9b7d783d594c7b8e3a5816c9b2d.
+
+                We realised we didnt need D.txt but we needed E.txt
+
+                commit 99234dd8e1a62193b6e2a58832196222a99c4e9b
+                Author: MrGazelle <m.dackhammar@gmail.com>
+                Date:   Mon Oct 28 09:58:26 2024 +0100
+
+                added E.txt
+
+                // more commits...
         
+                ---------------------------------
+
             --mixed (standard) - Återställer vår staging area men låter bli working
                     directory. Bra att ha om vi lagt till fel saker i staging area.
+                        
+                Exempel: Föreställ exakt samma scenario som ovan, fast istället
+                för --soft så använder vi --mixed. Skillnaden syns inte direkt,
+                men om vi kör git status, så ser vi att Staging Area är tom!
+                Annars är det ingen skillnad.
+
+                Kommandohistorik:
+                ---------------------------------
 
             --hard - Blåser alla 3 träd (staging area, working directory & commit).
                     Används när man gjort helt fel och behöver återställa alla 3 träd,
                     ska användas med försiktigthet.
+                        
+                Exempel: Föreställ samma scenario igen, fast nu har vi stora problem
+                och behöver slänga alltsammans vi gjort i java-filen och börja om.
+                Vi kör ---> git reset --hard. Detta kommer precis som tidigare att flytta
+                tillbaka head till tidigare commit och rensa alla ändringar i WD och SA.
+                Men nu är vi fria att börja om på nytt med vår java-fil, och kan commita i 
+                små steg för att slippa börja om helt.
+
+                Kommandohistorik:
+                ---------------------------------
