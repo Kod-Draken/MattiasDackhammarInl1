@@ -206,8 +206,7 @@ Här jobbar vi för VG!
         Fördel merge: Låter oss se hela historiken i en logisk sekvens som visar när
         funktioner implementerats och från var de kom.
         
-        Uppgift: Skapa ett repo med två eller fler feature branches som utvecklare arbetar på.
-        Beskriv hur du löser konflikter som uppstår under rebase och merge och visa slutresultatet i historiken.
+        Uppgift:
         
         Steg 1: Skapa branch och sedan en fil i main
         ---------------------
